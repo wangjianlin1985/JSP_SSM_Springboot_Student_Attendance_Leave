@@ -1,0 +1,49 @@
+﻿<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.LeaveInfoMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加请假记录 -->
+	<insert id="addLeaveInfo" parameterType="leaveInfo">
+		insert into t_leaveInfo(reason,content,duration,studentObj,leaveAddTime,shzt,shhf,teacherNo,shsj) values 
+		(#{reason},#{content},#{duration},#{studentObj.studentNo},#{leaveAddTime},#{shzt},#{shhf},#{teacherNo},#{shsj})
+	</insert>
+
+	<!-- 按照查询条件分页查询请假记录 -->
+	<select id="queryLeaveInfo" resultMap="leaveInfoMap" >
+		select t_leaveInfo.* from t_leaveInfo,t_student ${where} and t_leaveInfo.studentObj = t_student.studentNo limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="leaveInfoMap" type="leaveInfo">
+        <id property="leaveId" column="leaveId" />
+        <association property="studentObj" column="studentObj" select="com.chengxusheji.mapper.StudentMapper.getStudent" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有请假记录 -->
+	<select id="queryLeaveInfoList" resultMap="leaveInfoMap" >
+		select t_leaveInfo.* from t_leaveInfo,t_student ${where} and t_leaveInfo.studentObj = t_student.studentNo
+	</select>
+
+    <!-- 按照查询条件的请假记录数 -->
+	<select id="queryLeaveInfoCount" resultType="int">
+		select count(*) from t_leaveInfo,t_student ${where} and t_leaveInfo.studentObj = t_student.studentNo
+	</select>
+
+	<!-- 根据主键查询某个请假记录 -->
+	<select id="getLeaveInfo" parameterType="int" resultMap="leaveInfoMap">
+		select * from t_leaveInfo where t_leaveInfo.leaveId = #{leaveId}
+	</select>
+
+	<!-- 更新请假记录 -->
+	<update id="updateLeaveInfo" parameterType="leaveInfo">
+		update t_leaveInfo set reason=#{reason},content=#{content},duration=#{duration},studentObj=#{studentObj.studentNo},leaveAddTime=#{leaveAddTime},shzt=#{shzt},shhf=#{shhf},teacherNo=#{teacherNo},shsj=#{shsj} where leaveId = #{leaveId}
+	</update>
+
+	<!-- 删除请假记录 -->
+	<delete id="deleteLeaveInfo" parameterType="int">
+		delete from t_leaveInfo where leaveId=#{leaveId}
+	</delete>
+
+</mapper>
